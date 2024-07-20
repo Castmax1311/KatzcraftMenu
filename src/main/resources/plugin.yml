@@ -1,0 +1,16 @@
+name: KatzcraftMenu
+version: '1.0'
+main: de.castmax1311.katzcraftmenu.Main
+api-version: '1.19'
+authors: [Castmax1311]
+description: A plugin that helps administrators to use operator commands
+website: https://sites.google.com/view/katzcraftstudios/home
+commands:
+  admingui:
+    description: Opens the admin control GUI
+    usage: /admingui
+    permission: katzcraftmenu.admin
+  gui:
+    description: Opens the general GUI
+    usage: /gui
+    permission: katzcraftmenu.gui
