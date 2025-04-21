@@ -1,5 +1,5 @@
 name: KatzcraftMenu
-version: '1.0'
+version: '1.0.1'
 main: de.castmax1311.katzcraftmenu.Main
 api-version: '1.19'
 authors: [Castmax1311]
@@ -14,3 +14,7 @@ commands:
     description: Opens the general GUI
     usage: /gui
     permission: katzcraftmenu.gui
+  getadmintool:
+    description: Gibt dir das Admin Tool.
+    usage: /getadmintool
+    permission: katzcraftmenu.getadmintool

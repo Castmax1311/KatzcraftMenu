@@ -1,5 +1,6 @@
 package de.castmax1311.katzcraftmenu;
 
+import de.castmax1311.katzcraftmenu.UpdateChecker.*;
 import de.castmax1311.katzcraftmenu.commands.*;
 import de.castmax1311.katzcraftmenu.Listeners.*;
 import org.bukkit.Bukkit;
@@ -26,8 +27,23 @@ public class Main extends JavaPlugin implements Listener {
         getLogger().info("KatzcraftMenu has been enabled");
         this.getCommand("admingui").setExecutor(new AdminGUICommand());
         this.getCommand("gui").setExecutor(new GeneralGUICommand());
+        this.getCommand("getadmintool").setExecutor(new GetAdminToolCommand());
         Bukkit.getPluginManager().registerEvents(new AdminGUIListener(), this);
         Bukkit.getPluginManager().registerEvents(new GeneralGUIListener(), this);
+        Bukkit.getPluginManager().registerEvents(new AdminItemListener(), this);
+
+        new UpdateChecker(this, 118251).getVersion(version -> {
+            if (this.getDescription().getVersion().equals(version)) {
+                getLogger().info("No updates available");
+            } else {
+                getLogger().info("New update available! Download it on https://www.spigotmc.org/resources/katzcraftmenu.118251/");
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    if (player.isOp()) {
+                        player.sendMessage(Main.formatMessage(ChatColor.GREEN + "New update available! Download the latest version on Spigot: " + ChatColor.BLUE + "https://www.spigotmc.org/resources/katzcraftmenu.118251/"));
+                    }
+                }
+            }
+        });
     }
 
     @Override
