@@ -26,7 +26,7 @@ public class GetAdminToolCommand implements CommandExecutor {
 
         Player player = (Player) sender;
 
-        if (!player.hasPermission("servercontrol.admin")) {
+        if (!player.hasPermission("katzcraftmenu.getadmintool")) {
             player.sendMessage(Main.formatMessage(ChatColor.RED + "You do not have permission to use this command."));
             return true;
         }

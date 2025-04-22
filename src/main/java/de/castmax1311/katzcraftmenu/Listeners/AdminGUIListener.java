@@ -2,6 +2,7 @@ package de.castmax1311.katzcraftmenu.Listeners;
 
 import de.castmax1311.katzcraftmenu.Main;
 
+import de.castmax1311.katzcraftmenu.commands.AdminGUICommand;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -60,6 +61,9 @@ public class AdminGUIListener implements Listener {
             playerListGui.addItem(playerHead);
         }
 
+        // Füge den Zurück-Button in den letzten Slot
+        playerListGui.setItem(53, createBackButton());
+
         admin.openInventory(playerListGui);
     }
 
@@ -86,6 +90,9 @@ public class AdminGUIListener implements Listener {
         spectatorMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "Spectator");
         spectatorItem.setItemMeta(spectatorMeta);
         gamemodeGui.setItem(6, spectatorItem);
+
+        // Back Button
+        gamemodeGui.setItem(8, createBackButton());
 
         player.openInventory(gamemodeGui);
     }
@@ -114,6 +121,9 @@ public class AdminGUIListener implements Listener {
         stormyWeatherItem.setItemMeta(stormyWeatherMeta);
         weatherGui.setItem(6, stormyWeatherItem);
 
+        // Back Button
+        weatherGui.setItem(8, createBackButton());
+
         player.openInventory(weatherGui);
     }
 
@@ -126,12 +136,23 @@ public class AdminGUIListener implements Listener {
 
         event.setCancelled(true);  // Prevent taking the item
 
-        if (event.getCurrentItem() == null || event.getCurrentItem().getType() == Material.AIR) {
+        ItemStack clickedItem = event.getCurrentItem();
+        if (clickedItem == null || clickedItem.getType() == Material.AIR) {
             return;
         }
 
         Player admin = (Player) event.getWhoClicked();
-        ItemStack clickedItem = event.getCurrentItem();
+
+        // Zurück-Button gedrückt?
+        if (clickedItem.getType() == Material.ARROW &&
+                clickedItem.getItemMeta() != null &&
+                clickedItem.getItemMeta().hasDisplayName() &&
+                clickedItem.getItemMeta().getDisplayName().equals(ChatColor.GRAY + "Back")) {
+            AdminGUICommand.openAdminGUI(admin);
+            return;
+        }
+
+        // Spieler-Aktion
         String targetPlayerName = clickedItem.getItemMeta().getDisplayName();
         Player targetPlayer = Bukkit.getPlayer(targetPlayerName);
 
@@ -144,6 +165,9 @@ public class AdminGUIListener implements Listener {
                 Bukkit.getBanList(org.bukkit.BanList.Type.NAME).addBan(targetPlayerName, "Banned by an Admin", null, null);
                 admin.sendMessage(Main.formatMessage(ChatColor.DARK_RED + "Player " + targetPlayerName + " has been banned"));
             }
+
+            // Nur bei tatsächlicher Aktion das Menü schließen
+            admin.closeInventory();
         } else {
             admin.sendMessage(Main.formatMessage(ChatColor.RED + "Player not found"));
         }
@@ -163,6 +187,16 @@ public class AdminGUIListener implements Listener {
 
         Player player = (Player) event.getWhoClicked();
         ItemStack clickedItem = event.getCurrentItem();
+
+        // Back Button
+        if (clickedItem.getType() == Material.ARROW &&
+                clickedItem.getItemMeta() != null &&
+                clickedItem.getItemMeta().hasDisplayName() &&
+                clickedItem.getItemMeta().getDisplayName().equals(ChatColor.GRAY + "Back")) {
+
+            AdminGUICommand.openAdminGUI(player);
+            return; // NICHT schließen
+        }
 
         switch (clickedItem.getType()) {
             case GRASS_BLOCK:
@@ -186,37 +220,59 @@ public class AdminGUIListener implements Listener {
 
     @EventHandler
     public void onWeatherSelection(InventoryClickEvent event) {
+        if (!event.getView().getTitle().equals("Select Weather")) {
+            return;
+        }
+
+        event.setCancelled(true);
+
         Player player = (Player) event.getWhoClicked();
         ItemStack clickedItem = event.getCurrentItem();
 
-        if (event.getView().getTitle().equals("Select Weather")) {
-            event.setCancelled(true);
-
-            if (clickedItem == null || clickedItem.getType() == Material.AIR) {
-                return;
-            }
-
-            switch (clickedItem.getType()) {
-                case SUNFLOWER:
-                    player.getWorld().setStorm(false);
-                    player.getWorld().setThundering(false);
-                    player.sendMessage(Main.formatMessage(ChatColor.YELLOW + "The weather has been changed to clear"));
-                    break;
-                case WATER_BUCKET:
-                    player.getWorld().setStorm(true);
-                    player.getWorld().setThundering(false);
-                    player.sendMessage(Main.formatMessage(ChatColor.BLUE + "The weather has been changed to rainy"));
-                    break;
-                case TRIDENT:
-                    player.getWorld().setStorm(true);
-                    player.getWorld().setThundering(true);
-                    player.sendMessage(Main.formatMessage(ChatColor.DARK_GRAY + "The weather has been changed to stormy"));
-                    break;
-                default:
-                    break;
-            }
-
-            player.closeInventory();
+        if (clickedItem == null || clickedItem.getType() == Material.AIR) {
+            return;
         }
+
+        // Back Button
+        if (clickedItem.getType() == Material.ARROW &&
+                clickedItem.getItemMeta() != null &&
+                clickedItem.getItemMeta().hasDisplayName() &&
+                clickedItem.getItemMeta().getDisplayName().equals(ChatColor.GRAY + "Back")) {
+
+            AdminGUICommand.openAdminGUI(player);
+            return; // NICHT schließen
+        }
+
+        // Wetteroptionen
+        switch (clickedItem.getType()) {
+            case SUNFLOWER:
+                player.getWorld().setStorm(false);
+                player.getWorld().setThundering(false);
+                player.sendMessage(Main.formatMessage(ChatColor.YELLOW + "The weather has been changed to clear"));
+                break;
+            case WATER_BUCKET:
+                player.getWorld().setStorm(true);
+                player.getWorld().setThundering(false);
+                player.sendMessage(Main.formatMessage(ChatColor.BLUE + "The weather has been changed to rainy"));
+                break;
+            case TRIDENT:
+                player.getWorld().setStorm(true);
+                player.getWorld().setThundering(true);
+                player.sendMessage(Main.formatMessage(ChatColor.DARK_GRAY + "The weather has been changed to stormy"));
+                break;
+            default:
+                return;
+        }
+
+        // Nur bei Auswahl eines Wetters schließen
+        player.closeInventory();
+    }
+
+    private ItemStack createBackButton() {
+        ItemStack backItem = new ItemStack(Material.ARROW);
+        ItemMeta meta = backItem.getItemMeta();
+        meta.setDisplayName(ChatColor.GRAY + "Back");
+        backItem.setItemMeta(meta);
+        return backItem;
     }
 }

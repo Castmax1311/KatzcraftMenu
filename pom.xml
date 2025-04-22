@@ -6,7 +6,7 @@
 
     <groupId>de.castmax1311</groupId>
     <artifactId>KatzcraftMenu</artifactId>
-    <version>1.0.1</version>
+    <version>1.1</version>
     <packaging>jar</packaging>
 
     <name>KatzcraftMenu</name>

@@ -20,7 +20,6 @@ public class AdminItemListener implements Listener {
 
         // Nur prüfen, wenn Item vorhanden ist
         if (item == null || item.getType() != Material.COMPASS) return;
-        if (!player.hasPermission("katzcraftmenu.getadmintool")) return;
 
         // Prüfen auf Displayname
         ItemMeta meta = item.getItemMeta();
@@ -28,6 +27,12 @@ public class AdminItemListener implements Listener {
 
         // Prüfen auf den richtigen Itemnamen
         if (!meta.getDisplayName().equals(ChatColor.RED + "Administration Tool")) return;
+
+        // Prüfen, ob der Spieler die Admin-GUI öffnen darf
+        if (!player.hasPermission("katzcraftmenu.admin")) {
+            player.sendMessage(Main.formatMessage(ChatColor.RED + "Du hast keine Berechtigung, dieses Tool zu benutzen."));
+            return;
+        }
 
         // Klicktyp prüfen
         switch (event.getAction()) {
@@ -42,4 +47,5 @@ public class AdminItemListener implements Listener {
                 break;
         }
     }
+
 }
